@@ -1,7 +1,5 @@
 # TogglPy
 
-> **Archived**: I'm sunsetting this library. See #61. 
-
 [![Latest PyPI version](https://img.shields.io/pypi/v/TogglPy.svg)](https://pypi.org/project/TogglPy/)
 
 TogglPy is a python library for interacting with the [Toggl API](https://github.com/toggl/toggl_api_docs).
@@ -68,20 +66,15 @@ response = toggl.request("https://api.track.toggl.com/api/v8/some/endpoint", par
 
 ### Making a POST request to any Toggl endpoint:
 ```python
-
 data = { 
-    "project": 
-        { 
-            "name": "some project", 
-            "wid":777, 
-            "template_id":10237, 
-            "is_private":true, 
-            "cid":123397 
-        }
-    }
+	"name": "some project",
+	"wid":777,
+	"template_id":10237,
+	"is_private": True,
+	"cid":123397
+}
 
 response = toggl.postRequest("https://api.track.toggl.com/api/v8/projects", parameters=data)
-
 ```
 
 
@@ -90,10 +83,10 @@ response = toggl.postRequest("https://api.track.toggl.com/api/v8/projects", para
 ```python
 # specify that we want reports from this week
 data = {
-    'workspace_id': 0000, # see the next example for getting a workspace ID
-    'since': '2015-04-27',
-    'until': '2015-05-03',
-}
+		'workspace_id': 0000, # see the next example for getting a workspace ID
+		'since': '2015-04-27',
+		'until': '2015-05-03',
+	}
 
 # download one of each type of report for this time period
 toggl.getWeeklyReportPDF(data, "weekly-report.pdf")
@@ -137,7 +130,7 @@ toggl.startTimeEntry("my description", myprojectpid)
 
 ```python
 currentTimer = currentRunningTimeEntry()
-stopTimeEntry(currentTimer['data']['id'])
+stopTimeEntry(currentTimer['id'])
 ```
 
 ### Creating a custom time entry
