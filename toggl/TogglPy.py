@@ -22,9 +22,9 @@ except ImportError:
 
 
 NumStr = Union[str, int] # String or integer
-TogglResponseDict = Dict[str, Union[Dict, List, str, bool, type(None)]] # JSON with string keys
-TogglResponse = Optional[TogglResponseDict] # JSON if currently logging, None otherwise
-TogglResponses = Optional[List[TogglResponseDict]] # List of JSON dicts
+TogglResponseDict = Dict[str, Union[Dict, List, str, bool, type(None)]] # toggl JSON dict with string keys
+TogglResponse = Optional[TogglResponseDict] # Optional toggl JSON dict
+TogglResponses = Optional[List[TogglResponseDict]] # Optional list of JSON dicts
 
 # --------------------------------------------
 # Class containing the endpoint URLs for Toggl
@@ -33,19 +33,16 @@ class Endpoints:
     # REPORT_WEEKLY = "https://api.track.toggl.com/reports/api/v2/weekly"
     # REPORT_DETAILED = "https://api.track.toggl.com/reports/api/v2/details"
     # REPORT_SUMMARY = "https://api.track.toggl.com/reports/api/v2/summary"
-    TIME_ENTRIES = "https://api.track.toggl.com/api/v9/workspaces/{}/time_entries"
-    TIME_ENTRY = "https://api.track.toggl.com/api/v9/workspaces/{}/time_entries/{}"
-    CURRENT = "https://api.track.toggl.com/api/v9/me/time_entries/current"
-    START = "https://api.track.toggl.com/api/v9/workspaces/{}/time_entries"
-    STOP = "https://api.track.toggl.com/api/v9/workspaces/{}/time_entries/{}/stop"
     CLIENTS = "https://api.track.toggl.com/api/v9/me/clients"
+    CURRENT_RUNNING_TIME = "https://api.track.toggl.com/api/v9/me/time_entries/current"
     PROJECTS = "https://api.track.toggl.com/api/v9/me/projects"
     WORKSPACES = "https://api.track.toggl.com/api/v9/me/workspaces"
-    WORKSPACE_PROJECTS = "https://api.track.toggl.com/api/v9/workspaces/{0}/projects"
-    WORKSPACE_CLIENTS = "https://api.track.toggl.com/api/v9/workspaces/{0}/clients"
+    START = "https://api.track.toggl.com/api/v9/workspaces/{}/time_entries"
+    STOP = "https://api.track.toggl.com/api/v9/workspaces/{}/time_entries/{}/stop"
+    TIME_ENTRIES = "https://api.track.toggl.com/api/v9/workspaces/{}/time_entries"
     PROJECT_TASKS = "https://api.track.toggl.com/api/v9/workspaces/{0}/projects/{1}/tasks"
-    TASKS = "https://api.track.toggl.com/api/v9/workspaces/{0}/projects/{1}/tasks"
-    CURRENT_RUNNING_TIME = "https://api.track.toggl.com/api/v9/me/time_entries/current"
+    WORKSPACE_CLIENTS = "https://api.track.toggl.com/api/v9/workspaces/{0}/clients"
+    WORKSPACE_PROJECTS = "https://api.track.toggl.com/api/v9/workspaces/{0}/projects"
 
 
 # ------------------------------------------------------
@@ -232,22 +229,22 @@ class Toggl:
     def putTimeEntry(self, parameters: TogglResponse) -> TogglResponse:
         if 'id' not in parameters:
             raise Exception("An id must be provided in order to put a time entry")
-        id = parameters['id']
-        if type(id) is not int:
-            raise Exception("Invalid id %s provided " % id)
+        timeentry_id = parameters['id']
+        if type(timeentry_id) is not int:
+            raise Exception("Invalid id %s provided " % timeentry_id)
         if 'workspace_id' not in parameters:
             raise Exception("A workspace_id must be provided in order to put a time entry")
         wid = parameters['workspace_id']
         if type(wid) is not int:
             raise Exception("Invalid workspace_id %s provided " % wid)
-        endpoint = Endpoints.TIME_ENTRY.format(wid, id)  # encode all of our data for a put request & modify the URL
+        endpoint = Endpoints.TIME_ENTRIES.format(wid) + "/{}".format(timeentry_id)  # encode all of our data for a put request & modify the URL
         response = self.postRequest(endpoint, parameters=parameters, method='PUT')
         
         return self.decodeJSON(response)
 
     def deleteTimeEntry(self, workspace_id: NumStr, entry_id: NumStr) -> str:
         """Delete the time entry"""
-        endpoint = Endpoints.TIME_ENTRY.format(workspace_id, entry_id)
+        endpoint = Endpoints.TIME_ENTRIES.format(workspace_id) + "/{}".format(entry_id)
         response = self.postRequest(endpoint, method='DELETE')
         return response
 
@@ -408,7 +405,7 @@ class Toggl:
             'estimated_seconds': estimated_seconds
         }
 
-        response = self.postRequest(Endpoints.TASKS.format(wid, pid), parameters=data)
+        response = self.postRequest(Endpoints.PROJECT_TASKS.format(wid, pid), parameters=data)
         return self.decodeJSON(response)
 
     # --------------------------------
