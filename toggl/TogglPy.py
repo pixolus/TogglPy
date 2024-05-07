@@ -24,7 +24,7 @@ except ImportError:
     pass
 
 
-NumStr = Union[str, int]
+NumStr = Union[str, int] # String or integer
 TogglResponseDict = Dict[str, Union[Dict, List, str, bool, type(None)]] # JSON with string keys
 TogglResponse = Optional[TogglResponseDict] # JSON if currently logging, None otherwise
 TogglResponses = Optional[List[TogglResponseDict]] # List of JSON dicts
@@ -128,10 +128,10 @@ class Toggl:
         if parameters is None:
             return urlopen(
                 Request(endpoint, headers=self.headers, method=method), cafile=cafile
-            ).read().decode('utf-8')
+            ).read().decode(encoding='utf-8')
         else:
             data = json.JSONEncoder().encode(parameters)
-            binary_data = data.encode('utf-8')
+            binary_data = data.encode(encoding='utf-8')
             # make request and read the response
             return urlopen(
                 Request(endpoint, data=binary_data, headers=self.headers, method=method), cafile=cafile
@@ -179,8 +179,8 @@ class Toggl:
         state = self.postRequest(Endpoints.STOP.format(state['workspace_id'], state['id']), method="PATCH")
         return self.decodeJSON(state)
 
-    def createTimeEntry(self, hour_duration: int, wid: int, description: str=None, project_id: int=None,
-            projectname: str=None, taskid: int=None, client_name: str=None, year: int=None, month: int=None,
+    def createTimeEntry(self, hour_duration: int, wid: NumStr, description: str=None, project_id: NumStr=None,
+            projectname: str=None, task_id: NumStr=None, client_name: str=None, year: int=None, month: int=None,
             day: int=None, hour: int=None, billable: bool=False, hour_diff: int=-2) -> TogglResponse:
         """
         Creating a custom time entry, minimum must is hour duration and project param
@@ -189,7 +189,7 @@ class Toggl:
         :param description: Sets a description for the newly created time entry
         :param project_id: Not required if projectname given
         :param projectname: Not required if project_id was given
-        :param taskid: Adds a task to the time entry (Requirement: Toggl Starter or higher)
+        :param task_id: Adds a task to the time entry (Requirement: Toggl Starter or higher)
         :param client_name: Can speed up project query process
         :param year: Taken from now() if not provided
         :param month: Taken from now() if not provided
@@ -202,9 +202,9 @@ class Toggl:
 
         if not project_id:
             if projectname and client_name:
-                project_id = (self.getClientProject(client_name, projectname))['data']['id']
+                project_id = (self.getClientProject(client_name, projectname))['id']
             elif projectname:
-                project_id = (self.searchClientProject(projectname))['data']['id']
+                project_id = (self.searchClientProject(projectname))['id']
             else:
                 print('Too many missing parameters for query')
                 exit(1)
@@ -218,7 +218,7 @@ class Toggl:
         time_entry = {
             'start': timestruct,
             'duration': hour_duration * 3600,
-            'pid': project_id,
+            'pid': int(project_id),
             'created_with': 'NAME',
             'billable': billable
         }
@@ -226,8 +226,8 @@ class Toggl:
         if description:
             time_entry['description'] = description
 
-        if taskid:
-            time_entry['tid'] = taskid
+        if task_id:
+            time_entry['tid'] = int(task_id)
 
         response = self.postRequest(Endpoints.TIME_ENTRIES.format(wid), parameters=time_entry)
         return self.decodeJSON(response)
@@ -248,7 +248,7 @@ class Toggl:
         
         return self.decodeJSON(response)
 
-    def deleteTimeEntry(self, workspace_id: int, entry_id: int) -> str:
+    def deleteTimeEntry(self, workspace_id: NumStr, entry_id: NumStr) -> str:
         """Delete the time entry"""
         endpoint = Endpoints.TIME_ENTRY.format(workspace_id, entry_id)
         response = self.postRequest(endpoint, method='DELETE')
@@ -280,7 +280,7 @@ class Toggl:
                     return workspace  # if we find it return it
         return None  # if we get to here and haven't found it return None
 
-    def getWorkspaceProjects(self, workspace_id: int) -> TogglResponses:
+    def getWorkspaceProjects(self, workspace_id: NumStr) -> TogglResponses:
         """
         Return all projects for a given Workspace.
         
@@ -298,7 +298,7 @@ class Toggl:
         """return all clients that are visible to a user"""
         return self.request(Endpoints.CLIENTS)
 
-    def getClient(self, name: str=None, client_id: int=None) -> TogglResponse:
+    def getClient(self, name: str=None, client_id: NumStr=None) -> TogglResponse:
         """return the first workspace that matches a given name or id"""
         clients = self.getClients()  # get all clients
 
@@ -486,7 +486,7 @@ class Toggl:
     # --------------------------------
     # Methods for creating, updating, and deleting clients
     # ---------------------------------
-    def createClient(self, name: str, wid: int, notes: str=None) -> TogglResponse:
+    def createClient(self, name: str, wid: NumStr, notes: str=None) -> TogglResponse:
         """
         create a new client
         :param name: Name the client
@@ -496,19 +496,19 @@ class Toggl:
 
         data = {
             'name': name,
-            'wid': wid,
+            'wid': int(wid),
             'notes': notes
         }
         
         response = self.postRequest(Endpoints.WORKSPACE_CLIENTS.format(wid), parameters=data)
         return self.decodeJSON(response)
 
-    def updateClient(self, wid: int, id: int, name: str=None, notes: str=None) -> TogglResponse:
+    def updateClient(self, wid: NumStr, client_id: NumStr, name: str=None, notes: str=None) -> TogglResponse:
         """
         Update data for an existing client. If the name or notes parameter is not
         supplied, the existing data on the Toggl server will not be changed.
         :param wid: The id of the client's workspace
-        :param id: The id of the client to update
+        :param client_id: The id of the client to update
         :param name: Update the name of the client (optional)
         :param notes: Update the notes for the client (optional)
         """
@@ -516,21 +516,21 @@ class Toggl:
         data = {
             'name': name,
             'notes': notes,
-            'wid:': wid
+            'wid:': int(wid)
         }
 
         response = self.postRequest(
-                Endpoints.WORKSPACE_CLIENTS.format(wid) + '/{0}'.format(id),
+                Endpoints.WORKSPACE_CLIENTS.format(wid) + '/{0}'.format(client_id),
                 parameters=data,
                 method='PUT'
         )
         return self.decodeJSON(response)
 
-    def deleteClient(self, wid: int, id: int) -> str:
+    def deleteClient(self, wid: NumStr, client_id: NumStr) -> str:
         """
         Delete the specified client
         :param wid: The id of the client's workspace
-        :param id: The id of the client to delete
+        :param client_id: The id of the client to delete
         """
-        response = self.postRequest(Endpoints.WORKSPACE_CLIENTS.format(wid) + '/{0}'.format(id), method='DELETE')
+        response = self.postRequest(Endpoints.WORKSPACE_CLIENTS.format(wid) + '/{0}'.format(client_id), method='DELETE')
         return response
