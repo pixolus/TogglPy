@@ -6,9 +6,6 @@ Copyright (c) 2018-2023 Matthew Downey
 Copyright (c) 2024 Marco Lierfeld, pixolus GmbH
 """
 import json  # parsing json data
-import math
-import sys
-import time
 from base64 import b64encode
 from datetime import datetime
 from typing import Optional, Dict, List, Union
