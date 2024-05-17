@@ -68,7 +68,9 @@ class Toggl:
         decoded = json.JSONDecoder().decode(json_string)
         # ugly workaround: The toggl API returns a JSON object which cannot be
         # sent back to the API, because the `tag_ids` are `null` which is not allowed on a POST/PUT/PATCH
-        if 'tag_ids' in decoded and decoded.get('tag_ids') is None:
+        if (decoded is not None
+                and 'tag_ids' in decoded
+                and decoded.get('tag_ids') is None):
             decoded['tag_ids'] = []
         return decoded
 
