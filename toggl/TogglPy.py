@@ -153,7 +153,7 @@ class Toggl:
             "start": start_rfc3339,
             "duration": -1 * int(now),
             "workspace_id": int(wid),
-            "project_id": int(pid),
+            "project_id": int(pid) if pid is not None else None,
             "description": description,
             "created_with": self.user_agent
         }
@@ -196,7 +196,7 @@ class Toggl:
         :return: response object from post call
         """
 
-        if not project_id:
+        if project_id is None:
             if projectname and client_name:
                 project_id = (self.getClientProject(client_name, projectname))['id']
             elif projectname:
@@ -222,7 +222,7 @@ class Toggl:
         if description:
             time_entry['description'] = description
 
-        if task_id:
+        if task_id is not None:
             time_entry['tid'] = int(task_id)
 
         response = self.postRequest(Endpoints.TIME_ENTRIES.format(wid), parameters=time_entry)
