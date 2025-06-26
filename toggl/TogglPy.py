@@ -30,19 +30,21 @@ TogglResponses = Optional[List[TogglResponseDict]] # Optional list of JSON dicts
 # Class containing the endpoint URLs for Toggl
 # --------------------------------------------
 class Endpoints:
-    # REPORT_WEEKLY = "https://api.track.toggl.com/reports/api/v2/weekly"
+    REPORT_WEEKLY = "https://api.track.toggl.com/reports/api/v2/weekly"
     # REPORT_DETAILED = "https://api.track.toggl.com/reports/api/v2/details"
-    # REPORT_SUMMARY = "https://api.track.toggl.com/reports/api/v2/summary"
+    REPORT_SUMMARY = "https://api.track.toggl.com/reports/api/v2/summary"
     CLIENTS = "https://api.track.toggl.com/api/v9/me/clients"
     CURRENT_RUNNING_TIME = "https://api.track.toggl.com/api/v9/me/time_entries/current"
     PROJECTS = "https://api.track.toggl.com/api/v9/me/projects"
     WORKSPACES = "https://api.track.toggl.com/api/v9/me/workspaces"
+    ORGANIZATIONS = "https://api.track.toggl.com/api/v9/me/organizations"
     START = "https://api.track.toggl.com/api/v9/workspaces/{}/time_entries"
     STOP = "https://api.track.toggl.com/api/v9/workspaces/{}/time_entries/{}/stop"
     TIME_ENTRIES = "https://api.track.toggl.com/api/v9/workspaces/{}/time_entries"
     PROJECT_TASKS = "https://api.track.toggl.com/api/v9/workspaces/{0}/projects/{1}/tasks"
     WORKSPACE_CLIENTS = "https://api.track.toggl.com/api/v9/workspaces/{0}/clients"
     WORKSPACE_PROJECTS = "https://api.track.toggl.com/api/v9/workspaces/{0}/projects"
+    WORKSPACE_USERS = "https://api.track.toggl.com/api/v9/organizations/{0}/workspaces/{1}/workspace_users"
 
 
 # ------------------------------------------------------
@@ -284,8 +286,34 @@ class Toggl:
         :param workspace_id: Workspace ID by which to query
         :return: Projects object returned from endpoint
         """
-
         return self.request(Endpoints.WORKSPACE_PROJECTS.format(workspace_id))
+
+    def getWorkspaceClients(self, workspace_id: NumStr) -> TogglResponses:
+        """
+        Return all clients for a given Workspace.
+
+        :param workspace_id: Workspace ID by which to query
+        :return: Clients object returned from endpoint
+        """
+        return self.request(Endpoints.WORKSPACE_CLIENTS.format(workspace_id))
+
+    def getWorkspaceUsers(self, organization_id: NumStr, workspace_id: NumStr) -> TogglResponses:
+        """
+        Return all users for a given Workspace in a given organization.
+
+        :param organization_id: Organization ID by which to query
+        :param workspace_id: Workspace ID by which to query
+        :return: User objects returned from endpoint
+        """
+        return self.request(Endpoints.WORKSPACE_USERS.format(organization_id, workspace_id))
+
+    # -------------------------------------
+    # Methods for getting organization data
+    # -------------------------------------
+
+    def getOrganizations(self) -> TogglResponses:
+        """return all the organizations for a user"""
+        return self.request(Endpoints.ORGANIZATIONS)
 
     # -------------------------------
     # Methods for getting client data
@@ -414,10 +442,10 @@ class Toggl:
     # --------------------------------
     # Methods for getting reports data
     # ---------------------------------
-    # def getWeeklyReport(self, data):
-    #     """return a weekly report for a user"""
-    #     return self.request(Endpoints.REPORT_WEEKLY, parameters=data)
-    #
+    def getWeeklyReport(self, data):
+        """return a weekly report for a user"""
+        return self.request(Endpoints.REPORT_WEEKLY, parameters=data)
+
     # def getWeeklyReportPDF(self, data, filename):
     #     """save a weekly report as a PDF"""
     #     # get the raw pdf file data
@@ -467,9 +495,9 @@ class Toggl:
     #     else:
     #         return filedata
     #
-    # def getSummaryReport(self, data):
-    #     """return a summary report for a user"""
-    #     return self.request(Endpoints.REPORT_SUMMARY, parameters=data)
+    def getSummaryReport(self, data):
+        """return a summary report for a user"""
+        return self.request(Endpoints.REPORT_SUMMARY, parameters=data)
     #
     # def getSummaryReportPDF(self, data, filename):
     #     """save a summary report as a pdf"""
