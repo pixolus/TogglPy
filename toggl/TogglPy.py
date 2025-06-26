@@ -259,12 +259,13 @@ class Toggl:
 
     def getWorkspace(self, name=None, workspace_id=None) -> TogglResponse:
         """return the first workspace that matches a given name or id"""
-        workspaces = self.getWorkspaces()  # get all workspaces
-
         # if they give us nothing let them know we're not returning anything
         if name is None and workspace_id is None:
             print("Error in getWorkspace(), please enter either a name or an id as a filter")
             return None
+
+        # get all workspaces
+        workspaces = self.getWorkspaces()
 
         if workspace_id is None:  # then we search by name
             for workspace in workspaces:  # search through them for one matching the name provided
