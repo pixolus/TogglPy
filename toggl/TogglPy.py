@@ -286,7 +286,26 @@ class Toggl:
         :param workspace_id: Workspace ID by which to query
         :return: Projects object returned from endpoint
         """
-        return self.request(Endpoints.WORKSPACE_PROJECTS.format(workspace_id))
+        result = []
+        parameters = {
+            'page': 1,
+            # by default, toggl has a page-size of 151 (!) items.
+            # we increase this to (the maximum allowed value) 200 to minimize requests
+            'per_page': 200
+        }
+        retry = True
+        while retry:
+            projects = self.request(Endpoints.WORKSPACE_PROJECTS.format(workspace_id), parameters=parameters)
+            if len(projects) < parameters['per_page']:
+                # if page is not full (this includes "empty"),
+                # we are done and do not need to query the next page
+                retry = False
+            else:
+                # go to next page
+                parameters['page'] += 1
+            # add the received projects to the results list
+            result.extend(projects)
+        return result
 
     def getWorkspaceClients(self, workspace_id: NumStr) -> TogglResponses:
         """
