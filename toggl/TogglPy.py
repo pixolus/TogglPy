@@ -3,7 +3,7 @@ TogglPy is a non-cluttered, easily understood and implemented
 library for interacting with the Toggl API.
 
 Copyright (c) 2018-2023 Matthew Downey
-Copyright (c) 2024 Marco Lierfeld, pixolus GmbH
+Copyright (c) 2024-2025 Marco Lierfeld, pixolus GmbH
 """
 import json  # parsing json data
 from base64 import b64encode
