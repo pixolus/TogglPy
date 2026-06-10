@@ -1,8 +1,8 @@
 # TogglPy
 
-[![Latest PyPI version](https://img.shields.io/pypi/v/TogglPy.svg)](https://pypi.org/project/TogglPy/)
+This is a fork of the discontinued [TogglPy](https://github.com/matthewdowney/TogglPy) project. It is a Python library for interacting with the [Toggl API](https://github.com/toggl/toggl_api_docs).
 
-TogglPy is a python library for interacting with the [Toggl API](https://github.com/toggl/toggl_api_docs).
+Currently, this project is only available in this repository, not via PyPy, etc., and is in need of a new name. 
 
 # Features
 * Make requests against any (Toggl) API endpoint with request data as a dictionary
