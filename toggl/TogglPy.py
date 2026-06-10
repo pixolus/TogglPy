@@ -3,9 +3,10 @@ TogglPy is a non-cluttered, easily understood and implemented
 library for interacting with the Toggl API.
 
 Copyright (c) 2018-2023 Matthew Downey
-Copyright (c) 2024-2025 Marco Lierfeld, pixolus GmbH
+Copyright (c) 2024-2026 Marco Lierfeld, pixolus GmbH
 """
 import json  # parsing json data
+import ssl
 from base64 import b64encode
 from datetime import datetime
 from typing import Optional, Dict, List, Union
@@ -106,14 +107,14 @@ class Toggl:
     def requestRaw(self, endpoint: str, parameters=None) -> str:
         """make a request to the toggle api at a certain endpoint and return the RAW page data (usually JSON)"""
         if parameters is None:
-            return urlopen(Request(endpoint, headers=self.headers), cafile=cafile).read()
+            return urlopen(Request(endpoint, headers=self.headers), context=ssl.create_default_context(cafile=cafile)).read()
         else:
             if 'user_agent' not in parameters:
                 parameters.update({'user_agent': self.user_agent})  # add our class-level user agent in there
             # encode all of our data for a get request & modify the URL
             endpoint = endpoint + "?" + urlencode(parameters)
             # make request and read the response
-            return urlopen(Request(endpoint, headers=self.headers), cafile=cafile).read()
+            return urlopen(Request(endpoint, headers=self.headers), context=ssl.create_default_context(cafile=cafile)).read()
 
     def request(self, endpoint: str, parameters=None) -> Union[TogglResponse, TogglResponses]:
         """make a request to the toggle api at a certain endpoint and return the page data as a parsed JSON dict"""
@@ -122,17 +123,17 @@ class Toggl:
     def postRequest(self, endpoint: str, parameters=None, method: str='POST') -> str:
         """make a POST request to the toggle api at a certain endpoint and return the RAW page data (usually JSON)"""
         if method == 'DELETE':  # Calls to the API using the DELETE method return an HTTP response rather than JSON
-            return urlopen(Request(endpoint, headers=self.headers, method=method), cafile=cafile).code
+            return urlopen(Request(endpoint, headers=self.headers, method=method), context=ssl.create_default_context(cafile=cafile)).code
         if parameters is None:
             return urlopen(
-                Request(endpoint, headers=self.headers, method=method), cafile=cafile
+                Request(endpoint, headers=self.headers, method=method), context=ssl.create_default_context(cafile=cafile)
             ).read().decode(encoding='utf-8')
         else:
             data = json.JSONEncoder().encode(parameters)
             binary_data = data.encode(encoding='utf-8')
             # make request and read the response
             return urlopen(
-                Request(endpoint, data=binary_data, headers=self.headers, method=method), cafile=cafile
+                Request(endpoint, data=binary_data, headers=self.headers, method=method), context=ssl.create_default_context(cafile=cafile)
             ).read().decode(encoding='utf-8')
 
     # ---------------------------------
