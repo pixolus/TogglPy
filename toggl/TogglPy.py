@@ -23,7 +23,7 @@ except ImportError:
 
 
 NumStr = Union[str, int] # String or integer
-TogglResponseDict = Dict[str, Union[Dict, List, str, bool, type(None)]] # toggl JSON dict with string keys
+TogglResponseDict = Dict[str, Union[Dict, List, str, bool, None]] # toggl JSON dict with string keys
 TogglResponse = Optional[TogglResponseDict] # Optional toggl JSON dict
 TogglResponses = Optional[List[TogglResponseDict]] # Optional list of JSON dicts
 
